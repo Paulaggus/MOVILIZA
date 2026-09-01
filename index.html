@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOVILIZA - Generador Inteligente & Simulador de Movilización Precoz</title>
+    <!-- Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hidden { 
+            display: none !important; 
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            color: #1e293b;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        button {
+            touch-action: manipulation;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Top Disclaimer Banner -->
+    <div class="bg-amber-500 text-slate-900 text-xs sm:text-sm font-semibold px-4 py-2 text-center shadow-inner flex items-center justify-center gap-2">
+        <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0"></i>
+        <span>Aplicación educativa destinada al aprendizaje de estudiantes de Enfermería. No sustituye el juicio clínico ni la valoración profesional.</span>
+    </div>
+
+    <!-- Header / Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="navigateToScreen('home')">
+                <div class="bg-emerald-600 text-white p-2 rounded-xl shadow-md">
+                    <i data-lucide="activity" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900 leading-none">MOVILIZA</h1>
+                    <p class="text-xs text-slate-500 mt-0.5">¿Es seguro movilizar a este paciente?</p>
+                </div>
+            </div>
+
+            <nav class="flex items-center gap-2">
+                <button onclick="navigateToScreen('home')" id="nav-home" class="px-3.5 py-2 text-sm font-medium rounded-lg text-slate-700 hover:bg-slate-100 flex items-center gap-1.5 transition">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                    <span>Inicio</span>
+                </button>
+                <button onclick="navigateToScreen('education')" id="nav-education" class="px-3.5 py-2 text-sm font-medium rounded-lg text-slate-700 hover:bg-slate-100 flex items-center gap-1.5 transition">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    <span>Efectos Inmovilidad</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- PANTALLA PRINCIPAL / LANDING -->
+        <section id="screen-home" class="space-y-8">
+            <!-- Hero -->
+            <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950 text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+                    <i data-lucide="heart-pulse" class="w-96 h-96"></i>
+                </div>
+                <div class="max-w-3xl relative z-10 space-y-4">
+                    <span class="bg-teal-500/20 text-teal-300 text-xs font-semibold px-3 py-1 rounded-full border border-teal-500/30">
+                        Generador Clínico Algorítmico Infinito
+                    </span>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+                        Razonamiento Clínico Seguro en Movilización Precoz
+                    </h2>
+                    <p class="text-slate-300 text-base sm:text-lg leading-relaxed">
+                        Simulador interactivo para estudiantes de enfermería. Genera casos clínicos combinando variables de forma fisiológicamente coherente para entrenar la toma de decisiones al pie de cama.
+                    </p>
+                    <div class="pt-4 flex flex-wrap gap-4">
+                        <button onclick="startNewAssessment()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-8 py-4 rounded-xl shadow-xl hover:shadow-emerald-500/30 transition flex items-center gap-2.5 text-base border-2 border-emerald-400/40">
+                            <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+                            Valoración Guiada Paso a Paso
+                        </button>
+                        <button onclick="generateRandomPatient()" class="bg-slate-800/80 hover:bg-slate-700/90 text-slate-200 font-semibold px-6 py-4 rounded-xl border border-slate-600/50 transition flex items-center gap-2">
+                            <i data-lucide="user-plus" class="w-5 h-5"></i>
+                            Generar paciente aleatorio
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Objetivos Pedagógicos y Leyenda -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">
+                        <i data-lucide="cpu" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">Motor Coherente</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Genera miles de escenarios realistas cruzando patología principal, edad, días de encamamiento, constantes hemodinámicas, síntomas y líneas/dispositivos activos.
+                    </p>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">Código Semáforo</h3>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex items-center gap-2 p-2 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                            <strong>VERDE:</strong> Movilización segura hasta bipedestación/marcha.
+                        </div>
+                        <div class="flex items-center gap-2 p-2 rounded-lg bg-amber-50 text-amber-800 border border-amber-200">
+                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                            <strong>AMARILLO:</strong> Movilizar con precauciones y vigilar.
+                        </div>
+                        <div class="flex items-center gap-2 p-2 rounded-lg bg-rose-50 text-rose-800 border border-rose-200">
+                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                            <strong>ROJO:</strong> Contraindicado. Priorizar reposicionamiento.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center font-bold">
+                        <i data-lucide="stethoscope" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">Criterios de Fisioterapia</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Detecta automáticamente necesidad de interconsulta con Fisioterapia ante debilidad severa, disfunción respiratoria o afectación funcional grave.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANTALLA DEDICADA PARA PACIENTE GENERADO -->
+        <section id="screen-case" class="hidden space-y-6 max-w-4xl mx-auto">
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+                <!-- Header del Caso -->
+                <div class="bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 p-6 sm:p-8 text-white relative">
+                    <div class="flex items-center justify-between gap-4 mb-3">
+                        <span class="bg-teal-500/20 text-teal-300 text-xs font-bold px-3 py-1 rounded-full border border-teal-400/30 uppercase tracking-wider flex items-center gap-1.5">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Paciente Simulado
+                        </span>
+                        <button onclick="generateRandomPatient()" class="text-xs text-slate-200 hover:text-white bg-white/10 hover:bg-white/20 px-3.5 py-2 rounded-xl border border-white/20 transition flex items-center gap-1.5 font-medium">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                            Generar otro paciente
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-4 border-b border-white/10 pb-4">
+                        <h2 id="patient-name" class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">--</h2>
+                        <span id="patient-age" class="text-lg text-teal-300 font-semibold">-- años</span>
+                    </div>
+
+                    <!-- Ficha Sintetizada del Paciente -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-sm">
+                        <div class="bg-slate-900/70 p-4 rounded-xl border border-white/10 space-y-1.5">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Motivo de Ingreso</span>
+                            <p id="patient-diagnosis" class="text-white font-bold text-base">--</p>
+                            <div class="pt-1 flex items-center gap-2 text-xs text-teal-300">
+                                <i data-lucide="calendar" class="w-4 h-4"></i>
+                                <span>Días encamado(a): <strong id="patient-days" class="text-white">--</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/70 p-4 rounded-xl border border-white/10 space-y-1.5">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Constantes Vitales</span>
+                            <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                                <div>TA: <strong id="patient-bp" class="text-emerald-400">--</strong></div>
+                                <div>FC: <strong id="patient-hr" class="text-emerald-400">--</strong></div>
+                                <div>FR: <strong id="patient-rr" class="text-emerald-400">--</strong></div>
+                                <div>SatO2: <strong id="patient-spo2" class="text-emerald-400">--</strong></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Situación Actual / Cuadro Clínico -->
+                    <div class="mt-4 bg-slate-900/90 p-4 rounded-xl border border-white/10 space-y-2">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <i data-lucide="stethoscope" class="w-4 h-4 text-teal-400"></i> Situación Actual y Hallazgos
+                        </span>
+                        <ul id="patient-symptoms-list" class="text-xs sm:text-sm text-slate-200 space-y-1.5 pl-4 list-disc">
+                            <!-- Inyectado dinámicamente -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pregunta Central y Reto Pedagógico -->
+                <div class="p-6 sm:p-8 space-y-6 bg-slate-50">
+
+                    <!-- Big Question Banner -->
+                    <div class="bg-teal-900 text-white rounded-2xl p-6 shadow-md text-center space-y-2">
+                        <span class="text-xs font-bold uppercase tracking-widest text-teal-300">Desafío de Toma de Decisiones</span>
+                        <h3 class="text-2xl sm:text-3xl font-black text-white">¿Es seguro movilizar a este paciente?</h3>
+                        <p class="text-xs sm:text-sm text-teal-100 max-w-xl mx-auto">
+                            Analiza la estabilidad hemodinámica, presencia de oxigenoterapia, dolor, días en cama y síntomas de alerta.
+                        </p>
+                    </div>
+
+                    <!-- Banner de Reflexión y Elección del Estudiante -->
+                    <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 space-y-5">
+                        <div class="flex items-center gap-3 text-amber-900 font-bold text-base border-b border-amber-200 pb-3">
+                            <div class="p-2 bg-amber-500 text-white rounded-lg shadow-sm">
+                                <i data-lucide="brain" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <span class="block">Tu Evaluación Clínica Previa</span>
+                                <span class="text-xs font-normal text-amber-800">Selecciona tu propuesta antes de conocer la solución del simulador.</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Formulario de Toma de Decisión del Estudiante -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Selección 1: Nivel de Movilidad -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                    1. Nivel de Movilidad Recomendado Hoy:
+                                </label>
+                                <select id="student-mobility-choice" class="w-full bg-white border border-amber-300 rounded-xl p-3 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-amber-500 outline-none">
+                                    <option value="" disabled selected>-- Selecciona Nivel --</option>
+                                    <option value="0">Nivel 0: Reposicionamiento en cama (Contraindicado mover)</option>
+                                    <option value="1">Nivel 1: Sedestación en cama</option>
+                                    <option value="2">Nivel 2: Sedestación al borde de cama (con supervisión)</option>
+                                    <option value="3">Nivel 3: Transferencia al sillón</option>
+                                    <option value="4">Nivel 4: Bipedestación (con supervisión)</option>
+                                    <option value="5">Nivel 5: Marcha supervisada</option>
+                                </select>
+                            </div>
+
+                            <!-- Selección 2: Fisioterapia -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                    2. ¿Requiere Interconsulta con Fisioterapia?
+                                </label>
+                                <div class="grid grid-cols-2 gap-3 pt-1">
+                                    <label class="flex items-center justify-center gap-2 bg-white border border-amber-300 p-2.5 rounded-xl cursor-pointer hover:bg-amber-100/50 transition font-semibold text-xs text-slate-800">
+                                        <input type="radio" name="student-physio-choice" value="yes" class="text-emerald-600 focus:ring-emerald-500">
+                                        Sí, derivar
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 bg-white border border-amber-300 p-2.5 rounded-xl cursor-pointer hover:bg-amber-100/50 transition font-semibold text-xs text-slate-800">
+                                        <input type="radio" name="student-physio-choice" value="no" class="text-emerald-600 focus:ring-emerald-500">
+                                        No requiere
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="student-choice-warning" class="hidden bg-rose-100 border border-rose-300 text-rose-800 text-xs p-3 rounded-xl flex items-center gap-2 font-medium">
+                            <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+                            <span>Por favor, selecciona tanto el nivel como la necesidad de Fisioterapia antes de continuar.</span>
+                        </div>
+                    </div>
+
+                    <!-- Botón Unificado de Solución -->
+                    <div class="pt-2">
+                        <button onclick="calculateAndShowResults()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-emerald-600/20 transition flex items-center justify-center gap-2 text-base sm:text-lg">
+                            <i data-lucide="award" class="w-6 h-6"></i>
+                            Revelar Dictamen del Algoritmo y Comparar mi Respuesta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANTALLA DE VALORACIÓN MANUAL GUIADA (PASO 1, PASO 2 Y PASO 3 EN PANTALLAS SEPARADAS) -->
+        <section id="screen-assessment" class="hidden space-y-6 max-w-4xl mx-auto">
+            
+            <!-- Progress Stepper Header -->
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="clipboard-list" class="w-5 h-5 text-emerald-600"></i>
+                        Valoración Guiada Paso a Paso
+                    </h2>
+                    <span id="step-indicator" class="text-xs font-bold bg-slate-100 text-slate-700 px-3 py-1 rounded-full">Paso 1 de 3</span>
+                </div>
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-emerald-500 h-full w-1/3 transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- RESUMEN DE PASOS ANTERIORES (APARECE EN PASO 2 Y PASO 3) -->
+            <div id="previous-steps-summary" class="hidden space-y-3">
+                <!-- Inyectado dinámicamente según el paso actual -->
+            </div>
+
+            <!-- STEP 1: Contraindicaciones Absolutas -->
+            <div id="step-1" class="step-content space-y-6">
+                <div class="bg-rose-50/50 border border-rose-200 rounded-2xl p-6 space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="p-2 bg-rose-500 text-white rounded-lg shadow-sm">
+                            <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-rose-950">PASO 1: Contraindicaciones Absolutas (Banderas Rojas)</h3>
+                            <p class="text-xs sm:text-sm text-rose-700">Marque los signos de inestabilidad o la casilla de confirmación si no presenta ninguno.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2" id="absolute-list">
+                        <!-- Generado dinámicamente por JS -->
+                    </div>
+
+                    <!-- Opción Ninguno -->
+                    <div class="pt-2 border-t border-rose-200/60">
+                        <label class="flex items-center gap-3 bg-white p-4 rounded-xl border-2 border-emerald-500 hover:bg-emerald-50/50 cursor-pointer shadow-sm transition">
+                            <input type="checkbox" id="red_none" onchange="toggleNoneOption('reds')" class="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300">
+                            <span class="text-sm font-bold text-emerald-950">✅ El paciente NO presenta NINGUNA contraindicación absoluta</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="step1-validation-msg" class="hidden bg-amber-100 border border-amber-300 text-amber-900 text-xs p-3 rounded-xl font-medium flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+                    <span>Por favor, seleccione al menos una bandera roja o confirme que no presenta ninguna antes de avanzar.</span>
+                </div>
+
+                <div class="flex justify-between items-center pt-2">
+                    <button onclick="navigateToScreen('home')" class="px-5 py-2.5 border border-slate-300 text-slate-700 hover:bg-slate-100 font-medium rounded-xl transition text-sm">
+                        Cancelar
+                    </button>
+                    <button onclick="validateAndGoToStep(2)" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow transition flex items-center gap-2 text-sm">
+                        Continuar a Precauciones
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Criterios de Precaución (Banderas Amarillas) -->
+            <div id="step-2" class="step-content hidden space-y-6">
+                <div class="bg-amber-50/50 border border-amber-200 rounded-2xl p-6 space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="p-2 bg-amber-500 text-white rounded-lg shadow-sm">
+                            <i data-lucide="alert-circle" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-amber-950">PASO 2: Criterios de Precaución (Banderas Amarillas)</h3>
+                            <p class="text-xs sm:text-sm text-amber-700">Marque las alteraciones presentes o la casilla de confirmación si no hay precauciones.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2" id="precautions-list">
+                        <!-- Generado dinámicamente -->
+                    </div>
+
+                    <!-- Opción Ninguno -->
+                    <div class="pt-2 border-t border-amber-200/60">
+                        <label class="flex items-center gap-3 bg-white p-4 rounded-xl border-2 border-emerald-500 hover:bg-emerald-50/50 cursor-pointer shadow-sm transition">
+                            <input type="checkbox" id="yellow_none" onchange="toggleNoneOption('yellows')" class="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300">
+                            <span class="text-sm font-bold text-emerald-950">✅ El paciente NO presenta NINGUNA bandera de precaución</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="step2-validation-msg" class="hidden bg-amber-100 border border-amber-300 text-amber-900 text-xs p-3 rounded-xl font-medium flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+                    <span>Por favor, seleccione al menos una precaución o confirme que no presenta ninguna antes de avanzar.</span>
+                </div>
+
+                <div class="flex justify-between items-center pt-2">
+                    <button onclick="navigateToStep(1)" class="px-5 py-2.5 border border-slate-300 text-slate-700 hover:bg-slate-100 font-medium rounded-xl transition flex items-center gap-2 text-sm">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        Anterior
+                    </button>
+                    <button onclick="validateAndGoToStep(3)" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow transition flex items-center gap-2 text-sm">
+                        Continuar a Fisioterapia
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Criterios Fisioterapia -->
+            <div id="step-3" class="step-content hidden space-y-6">
+                <div class="bg-blue-50/50 border border-blue-200 rounded-2xl p-6 space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="p-2 bg-blue-600 text-white rounded-lg shadow-sm">
+                            <i data-lucide="stethoscope" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-blue-950">PASO 3: Valoración para Interconsulta con Fisioterapia</h3>
+                            <p class="text-xs sm:text-sm text-blue-700">Identifique hallazgos que motiven la intervención conjunta de Fisioterapia.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2" id="physio-list">
+                        <!-- Generado dinámicamente -->
+                    </div>
+
+                    <!-- Opción Ninguno -->
+                    <div class="pt-2 border-t border-blue-200/60">
+                        <label class="flex items-center gap-3 bg-white p-4 rounded-xl border-2 border-emerald-500 hover:bg-emerald-50/50 cursor-pointer shadow-sm transition">
+                            <input type="checkbox" id="physio_none" onchange="toggleNoneOption('physio')" class="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300">
+                            <span class="text-sm font-bold text-emerald-950">✅ El paciente NO presenta NINGÚN criterio para interconsulta con Fisioterapia</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="step3-validation-msg" class="hidden bg-amber-100 border border-amber-300 text-amber-900 text-xs p-3 rounded-xl font-medium flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+                    <span>Por favor, seleccione los criterios aplicables o confirme que no presenta ninguno antes de calcular.</span>
+                </div>
+
+                <div class="flex justify-between items-center pt-2">
+                    <button onclick="navigateToStep(2)" class="px-5 py-2.5 border border-slate-300 text-slate-700 hover:bg-slate-100 font-medium rounded-xl transition flex items-center gap-2 text-sm">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        Anterior
+                    </button>
+                    <button onclick="validateAndCalculate()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow transition flex items-center gap-2 text-sm">
+                        Calcular Dictamen Final
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- PANTALLA DE RESULTADOS / REVISION DE CASO -->
+        <section id="screen-results" class="hidden space-y-6 max-w-7xl mx-auto">
+            
+            <!-- Banner Comparativo con la Respuesta del Alumno (Sólo para casos simulados) -->
+            <div id="student-comparison-card" class="hidden bg-slate-900 border-2 border-slate-700 rounded-3xl p-6 text-white shadow-xl space-y-4">
+                <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-widest">
+                    <i data-lucide="award" class="w-4 h-4"></i> Comparativa: Tu Hipótesis vs. Algoritmo
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700">
+                        <span class="text-xs text-slate-400 font-medium block">Tu Estimación Previa:</span>
+                        <div id="student-summary-text" class="text-base font-bold text-slate-100 mt-1">--</div>
+                    </div>
+                    <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700">
+                        <span class="text-xs text-slate-400 font-medium block">Dictamen del Algoritmo:</span>
+                        <div id="algo-summary-text" class="text-base font-bold text-emerald-400 mt-1">--</div>
+                    </div>
+                </div>
+                <div id="student-feedback-badge" class="p-3 rounded-xl text-xs font-semibold flex items-center gap-2">
+                    <!-- Retroalimentación dinámica -->
+                </div>
+            </div>
+
+            <!-- Banner Resultado General del Algoritmo -->
+            <div id="result-banner" class="rounded-3xl p-6 sm:p-8 text-white shadow-lg transition-all duration-300 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div class="space-y-2 max-w-2xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-black/20 text-white border border-white/20">
+                        Dictamen Clínico Algorítmico
+                    </div>
+                    <h2 id="result-title" class="text-2xl sm:text-4xl font-extrabold tracking-tight">Cargando...</h2>
+                    <p id="result-message" class="text-white/90 text-sm sm:text-base leading-relaxed">...</p>
+                </div>
+                <div id="result-badge" class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 text-center min-w-[160px] self-stretch md:self-auto flex flex-col justify-center items-center">
+                    <span class="text-xs uppercase font-medium text-white/80">Nivel Recomendado</span>
+                    <span id="result-level-num" class="text-3xl font-black my-1">Nivel -</span>
+                    <span id="result-level-name" class="text-xs font-semibold text-white/90">...</span>
+                </div>
+            </div>
+
+            <!-- Grilla Principal de Razonamiento -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Columna Izquierda: Detalle del Razonamiento y Niveles (2 cols) -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Razonamiento Clínico -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="brain-circuit" class="w-5 h-5 text-indigo-600"></i>
+                            Explicación del Razonamiento Clínico
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                            <!-- Factores a favor -->
+                            <div class="bg-emerald-50/60 border border-emerald-200 rounded-xl p-4 space-y-2">
+                                <h4 class="text-sm font-bold text-emerald-900 flex items-center gap-1.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+                                    Factores Estables / A favor
+                                </h4>
+                                <ul id="pro-factors-list" class="text-xs text-emerald-800 space-y-1.5 list-disc list-inside">
+                                    <li>Ausencia de contraindicaciones hemodinámicas inmediatas.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Factores de riesgo -->
+                            <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-4 space-y-2">
+                                <h4 class="text-sm font-bold text-amber-900 flex items-center gap-1.5">
+                                    <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600"></i>
+                                    Factores de Riesgo / Precauciones
+                                </h4>
+                                <ul id="risk-factors-list" class="text-xs text-amber-800 space-y-1.5 list-disc list-inside">
+                                    <li>Ninguno detectado.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Recomendaciones de acción -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 mt-4">
+                            <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                <i data-lucide="list-checks" class="w-4 h-4 text-slate-600"></i>
+                                Plan de Acción Recomendado:
+                            </h4>
+                            <ul id="action-plan-list" class="text-sm text-slate-700 space-y-1 pl-4 list-disc">
+                                <li>Monitorizar signos vitales antes y después de la movilización.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Escala de Niveles de Movilidad -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="layers" class="w-5 h-5 text-teal-600"></i>
+                            Escala Progresiva de Movilidad
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="levels-grid">
+                            <!-- Niveles 0 al 5 insertados JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Interconsulta Fisioterapia y Botones (1 col) -->
+                <div class="space-y-6">
+                    <!-- Fisioterapia Card -->
+                    <div id="physio-recommendation-card" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div id="physio-icon-bg" class="p-3 rounded-xl bg-slate-100 text-slate-600">
+                                <i data-lucide="user-plus" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-sm">Valoración por Fisioterapia</h4>
+                                <p id="physio-status-text" class="text-xs text-slate-500">Evaluando criterios...</p>
+                            </div>
+                        </div>
+                        <p id="physio-detail-reason" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100 leading-relaxed">
+                            --
+                        </p>
+                    </div>
+
+                    <!-- Botones Acción -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <button onclick="generateRandomPatient()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            Generar Nuevo Paciente
+                        </button>
+                        <button onclick="startNewAssessment()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3.5 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
+                            <i data-lucide="sliders" class="w-4 h-4"></i>
+                            Valoración Paso a Paso
+                        </button>
+                        <button onclick="navigateToScreen('education')" class="w-full bg-teal-50 hover:bg-teal-100 text-teal-700 font-semibold py-3.5 rounded-xl border border-teal-200 transition text-sm flex items-center justify-center gap-2">
+                            <i data-lucide="book-open" class="w-4 h-4"></i>
+                            Línea del Tiempo Inmovilidad
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN EDUCATIVA: LÍNEA TEMPORAL DE INMOVILIDAD COMPLETA -->
+        <section id="screen-education" class="hidden space-y-8">
+            <div class="bg-gradient-to-r from-teal-900 via-slate-900 to-emerald-950 text-white p-8 rounded-3xl shadow-md space-y-3">
+                <span class="bg-teal-500/30 text-teal-300 text-xs font-semibold px-3 py-1 rounded-full border border-teal-500/30">
+                    Fisiopatología del Desuso y Encamamiento
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">Línea del Tiempo de la Inmovilidad: Cambios por Sistemas</h2>
+                <p class="text-slate-300 text-sm sm:text-base max-w-4xl leading-relaxed">
+                    El encamamiento prolongado provoca alteraciones sistémicas aceleradas. Conoce la evolución fisioneurológica, cardiovascular, respiratoria, cutánea y metabólica tras el cese de la actividad motora.
+                </p>
+            </div>
+
+            <!-- Timeline Detailed System Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+
+                <!-- 1. Primeras 24 horas -->
+                <div class="bg-white rounded-2xl border-2 border-teal-500/40 shadow-sm overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="bg-teal-500 text-slate-950 px-5 py-3 flex items-center justify-between">
+                            <span class="text-lg font-black tracking-tight">Primeras 24 horas</span>
+                            <span class="text-xs font-bold uppercase bg-slate-950 text-teal-300 px-2.5 py-0.5 rounded-full">Fase Inicial</span>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="space-y-2 border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase">
+                                    <i data-lucide="activity" class="w-4 h-4 text-teal-600"></i>
+                                    <span>Muscular y Cardio-Respiratorio</span>
+                                </div>
+                                <ul class="text-xs text-slate-600 space-y-1 list-disc pl-5">
+                                    <li>Disminuye la activación muscular. Comienza la pérdida de eficiencia neuromuscular.</li>
+                                    <li>Disminuye el retorno venoso por ausencia de la bomba muscular.</li>
+                                    <li>Menor expansión pulmonar. Disminución de la ventilación de las bases pulmonares.</li>
+                                </ul>
+                            </div>
+                            <div class="space-y-1 border-b border-slate-100 pb-2">
+                                <span class="text-[11px] font-bold text-purple-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="brain" class="w-3.5 h-3.5"></i> Neurológico
+                                </span>
+                                <p class="text-xs text-slate-600">Reducción de estímulos ambientales y actividad física.</p>
+                            </div>
+                            <div class="space-y-1 border-b border-slate-100 pb-2">
+                                <span class="text-[11px] font-bold text-rose-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="shield" class="w-3.5 h-3.5"></i> Piel
+                                </span>
+                                <p class="text-xs text-slate-600">Presión mantenida sobre prominencias óseas.</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[11px] font-bold text-amber-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="zap" class="w-3.5 h-3.5"></i> Metabólico
+                                </span>
+                                <p class="text-xs text-slate-600">Descenso del gasto energético.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 48-72 horas -->
+                <div class="bg-white rounded-2xl border-2 border-emerald-500/40 shadow-sm overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="bg-emerald-500 text-slate-950 px-5 py-3 flex items-center justify-between">
+                            <span class="text-lg font-black tracking-tight">48 - 72 horas</span>
+                            <span class="text-xs font-bold uppercase bg-slate-950 text-emerald-300 px-2.5 py-0.5 rounded-full">Días 2-3</span>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="space-y-2 border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase">
+                                    <i data-lucide="heart" class="w-4 h-4 text-emerald-600"></i>
+                                    <span>Muscular y Cardio-Respiratorio</span>
+                                </div>
+                                <ul class="text-xs text-slate-600 space-y-1 list-disc pl-5">
+                                    <li>Pérdida inicial de fuerza muscular. Comienza la atrofia.</li>
+                                    <li>Aparece intolerancia al ortostatismo. Aumento de FC al incorporarse.</li>
+                                    <li>Acumulación de secreciones. Tos menos efectiva.</li>
+                                </ul>
+                            </div>
+                            <div class="space-y-1 border-b border-slate-100 pb-2">
+                                <span class="text-[11px] font-bold text-purple-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="brain" class="w-3.5 h-3.5"></i> Neurológico
+                                </span>
+                                <p class="text-xs text-slate-600">Alteración del sueño. Mayor sensación de dependencia.</p>
+                            </div>
+                            <div class="space-y-1 border-b border-slate-100 pb-2">
+                                <span class="text-[11px] font-bold text-rose-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="shield" class="w-3.5 h-3.5"></i> Piel
+                                </span>
+                                <p class="text-xs text-slate-600">Eritema persistente en zonas de apoyo.</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[11px] font-bold text-amber-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="zap" class="w-3.5 h-3.5"></i> Metabólico
+                                </span>
+                                <p class="text-xs text-slate-600">Estreñimiento. Disminución del apetito.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Día 5 -->
+                <div class="bg-white rounded-2xl border-2 border-lime-500/40 shadow-sm overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="bg-lime-500 text-slate-950 px-5 py-3 flex items-center justify-between">
+                            <span class="text-lg font-black tracking-tight">Día 5</span>
+                            <span class="text-xs font-bold uppercase bg-slate-950 text-lime-300 px-2.5 py-0.5 rounded-full">Desacondicionamiento</span>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="space-y-2 border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase">
+                                    <i data-lucide="alert-triangle" class="w-4 h-4 text-lime-700"></i>
+                                    <span>Muscular y Cardio-Respiratorio</span>
+                                </div>
+                                <ul class="text-xs text-slate-600 space-y-1 list-disc pl-5">
+                                    <li>Debilidad evidente. Dificultad para levantarse o caminar.</li>
+                                    <li>Hipotensión ortostática.</li>
+                                    <li>Riesgo creciente de atelectasias pulmonares.</li>
+                                </ul>
+                            </div>
+                            <div class="space-y-1 border-b border-slate-100 pb-2">
+                                <span class="text-[11px] font-bold text-purple-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="brain" class="w-3.5 h-3.5"></i> Neurológico
+                                </span>
+                                <p class="text-xs text-slate-600">Apatía. Menor participación en actividades.</p>
+                            </div>
+                            <div class="space-y-1 border-b border-slate-100 pb-2">
+                                <span class="text-[11px] font-bold text-rose-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="shield" class="w-3.5 h-3.5"></i> Piel
+                                </span>
+                                <p class="text-xs text-slate-600">Lesión por presión Estadio I en vulnerables.</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[11px] font-bold text-amber-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="zap" class="w-3.5 h-3.5"></i> Metabólico
+                                </span>
+                                <p class="text-xs text-slate-600">Balance nitrogenado negativo. Pérdida de masa muscular acelerada.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Día 7 -->
+                <div class="bg-white rounded-2xl border-2 border-amber-500/40 shadow-sm overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="bg-amber-500 text-slate-950 px-5 py-3 flex items-center justify-between">
+                            <span class="text-lg font-black tracking-tight">Día 7</span>
+                            <span class="text-xs font-bold uppercase bg-slate-950 text-amber-300 px-2.5 py-0.5 rounded-full">1 Semana</span>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="space-y-2 border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase">
+                                    <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600"></i>
+                                    <span>Muscular y Cardio-Respiratorio</span>
+                                </div>
+                                <ul class="text-xs text-slate-600 space-y-1 list-disc pl-5">
+                                    <li>Pérdida importante de fuerza. Dependencia parcial en ABVD.</li>
+                                    <li>Estasis venosa significativa. Riesgo de TVP.</li>
+                                    <li>Mayor riesgo de neumonía asociada a inmovilidad.</li>
+                                </ul>
+                            </div>
+                            <div class="space-y-1 border-b border-slate-100 pb-2">
+                                <span class="text-[11px] font-bold text-purple-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="brain" class="w-3.5 h-3.5"></i> Neurológico
+                                </span>
+                                <p class="text-xs text-slate-600">Desorientación ocasional en pacientes frágiles.</p>
+                            </div>
+                            <div class="space-y-1 border-b border-slate-100 pb-2">
+                                <span class="text-[11px] font-bold text-rose-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="shield" class="w-3.5 h-3.5"></i> Piel
+                                </span>
+                                <p class="text-xs text-slate-600">Empeoramiento progresivo de lesiones por presión.</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[11px] font-bold text-amber-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="zap" class="w-3.5 h-3.5"></i> Metabólico
+                                </span>
+                                <p class="text-xs text-slate-600">Resistencia a la insulina y mayor fatiga.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Día 10 -->
+                <div class="bg-white rounded-2xl border-2 border-orange-500/40 shadow-sm overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="bg-orange-500 text-white px-5 py-3 flex items-center justify-between">
+                            <span class="text-lg font-black tracking-tight">Día 10</span>
+                            <span class="text-xs font-bold uppercase bg-slate-950 text-orange-300 px-2.5 py-0.5 rounded-full">Deterioro Severo</span>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="space-y-2 border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase">
+                                    <i data-lucide="alert-circle" class="w-4 h-4 text-orange-600"></i>
+                                    <span>Muscular y Cardio-Respiratorio</span>
+                                </div>
+                                <ul class="text-xs text-slate-600 space-y-1 list-disc pl-5">
+                                    <li>Atrofia muscular evidente. Marcada intolerancia al esfuerzo.</li>
+                                    <li>Riesgo tromboembólico elevado (TEP/TVP).</li>
+                                    <li>Atelectasias e infecciones respiratorias secundarias.</li>
+                                </ul>
+                            </div>
+                            <div class="space-y-1 border-b border-slate-100 pb-2">
+                                <span class="text-[11px] font-bold text-purple-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="brain" class="w-3.5 h-3.5"></i> Neurológico
+                                </span>
+                                <p class="text-xs text-slate-600">Riesgo de delirium en pacientes mayores.</p>
+                            </div>
+                            <div class="space-y-1 border-b border-slate-100 pb-2">
+                                <span class="text-[11px] font-bold text-rose-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="shield" class="w-3.5 h-3.5"></i> Piel
+                                </span>
+                                <p class="text-xs text-slate-600">Lesión por presión establecida.</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[11px] font-bold text-amber-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="zap" class="w-3.5 h-3.5"></i> Metabólico
+                                </span>
+                                <p class="text-xs text-slate-600">Pérdida de masa magra y deterioro de la capacidad funcional.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. Más de 2 Semanas -->
+                <div class="bg-white rounded-2xl border-2 border-rose-600/40 shadow-sm overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="bg-rose-600 text-white px-5 py-3 flex items-center justify-between">
+                            <span class="text-lg font-black tracking-tight">Más de 2 Semanas</span>
+                            <span class="text-xs font-bold uppercase bg-slate-950 text-rose-300 px-2.5 py-0.5 rounded-full">Crítico</span>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="space-y-2 border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase">
+                                    <i data-lucide="x-circle" class="w-4 h-4 text-rose-600"></i>
+                                    <span>Muscular y Cardio-Respiratorio</span>
+                                </div>
+                                <ul class="text-xs text-slate-600 space-y-1 list-disc pl-5">
+                                    <li>Dependencia funcional importante. Contracturas articulares fijas.</li>
+                                    <li>Desacondicionamiento cardiovascular severo.</li>
+                                    <li>Capacidad funcional cardiorrespiratoria muy reducida.</li>
+                                </ul>
+                            </div>
+                            <div class="space-y-1 border-b border-slate-100 pb-2">
+                                <span class="text-[11px] font-bold text-purple-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="brain" class="w-3.5 h-3.5"></i> Neurológico
+                                </span>
+                                <p class="text-xs text-slate-600">Deterioro de la autonomía y del estado emocional.</p>
+                            </div>
+                            <div class="space-y-1 border-b border-slate-100 pb-2">
+                                <span class="text-[11px] font-bold text-rose-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="shield" class="w-3.5 h-3.5"></i> Piel
+                                </span>
+                                <p class="text-xs text-slate-600">Riesgo elevado de úlceras profundas.</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[11px] font-bold text-amber-700 uppercase flex items-center gap-1">
+                                    <i data-lucide="zap" class="w-3.5 h-3.5"></i> Metabólico
+                                </span>
+                                <p class="text-xs text-slate-600">Sarcopenia acelerada y alteraciones metabólicas persistentes.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Botón acción al final -->
+            <div class="text-center pt-4">
+                <button onclick="generateRandomPatient()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-3.5 rounded-xl shadow-lg transition inline-flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-5 h-5"></i>
+                    Generar Paciente para Valorar
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 space-y-2">
+            <p class="font-semibold text-slate-700">MOVILIZA - Simulador Educativo de Movilización Precoz en Enfermería</p>
+            <p>Diseñado para la docencia universitaria en Principios de Fisioterapia Aplicados a la Enfermería.</p>
+            <p class="text-slate-400">© 2026 - Herramienta pedagógica y conceptual no asistencial.</p>
+        </div>
+    </footer>
+
+    <!-- LÓGICA JAVASCRIPT INTEGRADA -->
+    <script>
+        const absoluteRedFlags = [
+            { id: 'hemo', label: 'Inestabilidad hemodinámica', detail: 'TA sistólica < 90 mmHg con síntomas o soporte alto de vasoactivos' },
+            { id: 'shock', label: 'Shock o hipoperfusión', detail: 'Signos de mala perfusión tisular, oliguria o lactato elevado' },
+            { id: 'angina', label: 'Dolor torácico activo o SCA inestable', detail: 'Isquemia miocárdica no controlada o arritmia ventricular severa' },
+            { id: 'resp_severe', label: 'Insuficiencia respiratoria grave', detail: 'Trabajo respiratorio extremo o PaO2/FiO2 gravemente alterada' },
+            { id: 'neuro_acute', label: 'Convulsión reciente o deterioro neurológico agudo', detail: 'Disminución brusca del nivel de conciencia o PIC elevada' },
+            { id: 'fracture', label: 'Fractura o lesión musculoesquelética inestable', detail: 'Columna, pelvis o extremidades no fijadas' }
+        ];
+
+        const precautionYellowFlags = [
+            { id: 'pas_low', label: 'TA sistólica entre 90 y 100 mmHg' },
+            { id: 'fc_high', label: 'Frecuencia cardiaca > 120 lpm' },
+            { id: 'fr_high', label: 'Frecuencia respiratoria > 24 rpm' },
+            { id: 'sat_low', label: 'Saturación SpO2 entre 90% y 92%' },
+            { id: 'pain_mod', label: 'Dolor moderado o intenso (EVA ≥ 5)' },
+            { id: 'dizzy', label: 'Mareo o hipotensión ortostática al incorporarse' },
+            { id: 'fall_risk', label: 'Riesgo elevado de caída' },
+            { id: 'cog_imp', label: 'Alteración cognitiva leve / moderada' },
+            { id: 'fatigue', label: 'Fatiga o astenia importante' },
+            { id: 'o2_therapy', label: 'Oxigenoterapia activa' },
+            { id: 'surgery', label: 'Cirugía reciente (< 48h)' }
+        ];
+
+        const physioCriteria = [
+            { id: 'resp_distress', label: 'Distrés respiratorio leve/moderado' },
+            { id: 'secretions', label: 'Abundantes secreciones respiratorias' },
+            { id: 'severe_weakness', label: 'Debilidad muscular severa' },
+            { id: 'bedridden_5d', label: 'Más de 5 días encamado' },
+            { id: 'functional_decline', label: 'Deterioro funcional importante previo/actual' },
+            { id: 'gait_issues', label: 'Problemas graves para la marcha / alteración del equilibrio' }
+        ];
+
+        // Escala Progresiva de Movilidad con modificaciones del usuario
+        const mobilityLevels = [
+            { level: 0, title: 'Nivel 0: Reposicionamiento', desc: 'Cambios posturales frecuentes en cama, ejercicios pasivos, asistidos o activos y protección de zonas de presión.' },
+            { level: 1, title: 'Nivel 1: Sedestación en cama', desc: 'Elevación del cabecero a 45º-90º, ejercicios activos en cama y movilidad de miembros superiores.' },
+            { level: 2, title: 'Nivel 2: Sedestación al borde de cama (con supervisión)', desc: 'Mantenimiento del equilibrio del tronco al borde de la cama con pies apoyados y supervisión directa.' },
+            { level: 3, title: 'Nivel 3: Transferencia al sillón', desc: 'Paso de cama a sillón mediante giro o asistencia del personal. Mantenimiento fuera de cama.' },
+            { level: 4, title: 'Nivel 4: Bipedestación (con supervisión)', desc: 'Ponerse de pie al lado de la cama con supervisión, transferencias de carga y marcha estática.' },
+            { level: 5, title: 'Nivel 5: Marcha supervisada', desc: 'Deambulación por la habitación o pasillo con o sin producto de apoyo.' }
+        ];
+
+        const DIAGNOSES_LIST = [
+            { name: "Neumonía bacteriana", category: "respiratory", baseRisk: "moderate" },
+            { name: "EPOC agudizado", category: "respiratory", baseRisk: "moderate" },
+            { name: "Insuficiencia cardiaca congestiva", category: "cardiac", baseRisk: "moderate" },
+            { name: "Postoperatorio de cirugía abdominal (Laparotomía)", category: "surgical", baseRisk: "moderate" },
+            { name: "Postoperatorio de prótesis total de cadera", category: "ortho", baseRisk: "low" },
+            { name: "Infección urinaria / Pielonefritis", category: "infection", baseRisk: "low" },
+            { name: "Deterioro funcional asociado a la hospitalización", category: "geriatric", baseRisk: "low" },
+            { name: "COVID-19 / Infección respiratoria viral", category: "respiratory", baseRisk: "moderate" },
+            { name: "Ictus isquémico subagudo estable", category: "neuro", baseRisk: "moderate" },
+            { name: "Paciente geriátrico frágil con síndrome de inmovilismo", category: "geriatric", baseRisk: "low" }
+        ];
+
+        const MALE_NAMES = ['Antonio', 'Manuel', 'José', 'Francisco', 'David', 'Juan', 'Javier', 'Daniel', 'Carlos', 'Jesús', 'Alejandro', 'Miguel', 'Rafael', 'Pedro', 'Angel'];
+        const FEMALE_NAMES = ['María', 'Carmen', 'Ana', 'Isabel', 'Dolores', 'Pilar', 'Teresa', 'Rosa', 'Lucía', 'Cristina', 'Laura', 'Elena', 'Marta', 'Concepción', 'Mercedes'];
+
+        const BEDRIDDEN_DAYS = [0, 1, 3, 5, 7, 10];
+
+        // Estado Global de la App
+        let currentAssessment = {
+            reds: {},
+            yellows: {},
+            physio: {},
+            redNone: false,
+            yellowNone: false,
+            physioNone: false
+        };
+
+        let currentActivePatient = null;
+        let currentStepNumber = 1;
+
+        // Seguridad de render de iconos Lucide con fallback
+        function safeLucideIcons() {
+            if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                try {
+                    lucide.createIcons();
+                } catch (e) {
+                    console.warn('Error al cargar iconos Lucide:', e);
+                }
+            } else {
+                document.querySelectorAll('i[data-lucide]').forEach(el => {
+                    const iconName = el.getAttribute('data-lucide');
+                    const emojiMap = {
+                        'alert-triangle': '⚠️', 'activity': '⚡', 'home': '🏠',
+                        'clipboard-check': '📋', 'clock': '⏱️', 'heart-pulse': '💗',
+                        'user-plus': '👤+', 'cpu': '⚙️', 'shield-check': '🛡️',
+                        'stethoscope': '🩺', 'sparkles': '✨', 'refresh-cw': '🔄',
+                        'calendar': '📅', 'brain': '🧠', 'award': '🏅',
+                        'clipboard-list': '📝', 'shield-alert': '🚨', 'arrow-right': '➡️',
+                        'alert-circle': '⚠️', 'arrow-left': '⬅️', 'check-circle': '✅',
+                        'brain-circuit': '💡', 'check-circle-2': '✔️', 'list-checks': '📋',
+                        'layers': '🥞', 'book-open': '📖', 'sliders': '🎛️',
+                        'heart': '❤️', 'shield': '🛡️', 'zap': '⚡', 'x-circle': '❌'
+                    };
+                    if (emojiMap[iconName]) {
+                        el.innerHTML = emojiMap[iconName];
+                        el.style.fontStyle = 'normal';
+                    }
+                });
+            }
+        }
+
+        // Sistema de Navegación con soporte para el botón Atrás del Navegador (Browser History)
+        function navigateToScreen(screenId, step = 1, pushToHistory = true) {
+            document.getElementById('screen-home').classList.add('hidden');
+            document.getElementById('screen-case').classList.add('hidden');
+            document.getElementById('screen-assessment').classList.add('hidden');
+            document.getElementById('screen-results').classList.add('hidden');
+            document.getElementById('screen-education').classList.add('hidden');
+
+            const target = document.getElementById('screen-' + screenId);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+
+            if (screenId === 'assessment') {
+                showStepView(step);
+            }
+
+            if (pushToHistory) {
+                const stateObj = { screen: screenId, step: step };
+                window.history.pushState(stateObj, '', '#' + screenId + (screenId === 'assessment' ? `-step${step}` : ''));
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            safeLucideIcons();
+        }
+
+        // Manejar evento de flecha Atrás/Adelante del navegador
+        window.onpopstate = function(event) {
+            if (event.state) {
+                navigateToScreen(event.state.screen, event.state.step || 1, false);
+            } else {
+                navigateToScreen('home', 1, false);
+            }
+        };
+
+        // Inicialización al cargar la página
+        window.addEventListener('DOMContentLoaded', () => {
+            renderFormOptions();
+            // Estado inicial de la historia
+            window.history.replaceState({ screen: 'home', step: 1 }, '', '#home');
+            safeLucideIcons();
+        });
+
+        // Renderizar opciones de los formularios
+        function renderFormOptions() {
+            // Step 1: Rojas
+            const redContainer = document.getElementById('absolute-list');
+            redContainer.innerHTML = absoluteRedFlags.map(item => `
+                <label class="flex items-start gap-3 bg-white p-4 rounded-xl border border-rose-200 hover:border-rose-400 cursor-pointer shadow-sm transition">
+                    <input type="checkbox" id="red_${item.id}" onchange="toggleFlag('reds', '${item.id}')" class="mt-1 w-5 h-5 rounded text-rose-600 focus:ring-rose-500 border-slate-300">
+                    <div>
+                        <span class="block text-sm font-bold text-slate-900">${item.label}</span>
+                        <span class="block text-xs text-slate-500 mt-0.5">${item.detail}</span>
+                    </div>
+                </label>
+            `).join('');
+
+            // Step 2: Precauciones
+            const yellowContainer = document.getElementById('precautions-list');
+            yellowContainer.innerHTML = precautionYellowFlags.map(item => `
+                <label class="flex items-center gap-3 bg-white p-3.5 rounded-xl border border-amber-200 hover:border-amber-400 cursor-pointer shadow-sm transition">
+                    <input type="checkbox" id="yellow_${item.id}" onchange="toggleFlag('yellows', '${item.id}')" class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-slate-300">
+                    <span class="text-xs font-semibold text-slate-800">${item.label}</span>
+                </label>
+            `).join('');
+
+            // Step 3: Fisioterapia
+            const physioContainer = document.getElementById('physio-list');
+            physioContainer.innerHTML = physioCriteria.map(item => `
+                <label class="flex items-center gap-3 bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 cursor-pointer shadow-sm transition">
+                    <input type="checkbox" id="physio_${item.id}" onchange="toggleFlag('physio', '${item.id}')" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300">
+                    <span class="text-xs font-semibold text-slate-800">${item.label}</span>
+                </label>
+            `).join('');
+        }
+
+        // Manejar alternancia de banderas
+        function toggleFlag(category, id) {
+            currentAssessment[category][id] = !currentAssessment[category][id];
+            
+            // Si el usuario marca alguna bandera, desmarcar la casilla "No presenta nada"
+            if (currentAssessment[category][id]) {
+                if (category === 'reds') {
+                    currentAssessment.redNone = false;
+                    document.getElementById('red_none').checked = false;
+                    document.getElementById('step1-validation-msg').classList.add('hidden');
+                } else if (category === 'yellows') {
+                    currentAssessment.yellowNone = false;
+                    document.getElementById('yellow_none').checked = false;
+                    document.getElementById('step2-validation-msg').classList.add('hidden');
+                } else if (category === 'physio') {
+                    currentAssessment.physioNone = false;
+                    document.getElementById('physio-none').checked = false;
+                    document.getElementById('step3-validation-msg').classList.add('hidden');
+                }
+            }
+        }
+
+        // Manejar opción "No presenta nada"
+        function toggleNoneOption(category) {
+            if (category === 'reds') {
+                const isChecked = document.getElementById('red_none').checked;
+                currentAssessment.redNone = isChecked;
+                if (isChecked) {
+                    absoluteRedFlags.forEach(f => {
+                        currentAssessment.reds[f.id] = false;
+                        const el = document.getElementById(`red_${f.id}`);
+                        if (el) el.checked = false;
+                    });
+                    document.getElementById('step1-validation-msg').classList.add('hidden');
+                }
+            } else if (category === 'yellows') {
+                const isChecked = document.getElementById('yellow_none').checked;
+                currentAssessment.yellowNone = isChecked;
+                if (isChecked) {
+                    precautionYellowFlags.forEach(f => {
+                        currentAssessment.yellows[f.id] = false;
+                        const el = document.getElementById(`yellow_${f.id}`);
+                        if (el) el.checked = false;
+                    });
+                    document.getElementById('step2-validation-msg').classList.add('hidden');
+                }
+            } else if (category === 'physio') {
+                const isChecked = document.getElementById('physio_none').checked;
+                currentAssessment.physioNone = isChecked;
+                if (isChecked) {
+                    physioCriteria.forEach(f => {
+                        currentAssessment.physio[f.id] = false;
+                        const el = document.getElementById(`physio_${f.id}`);
+                        if (el) el.checked = false;
+                    });
+                    document.getElementById('step3-validation-msg').classList.add('hidden');
+                }
+            }
+        }
+
+        // Iniciar Valoración Limpia
+        function startNewAssessment() {
+            currentAssessment = { 
+                reds: {}, yellows: {}, physio: {},
+                redNone: false, yellowNone: false, physioNone: false 
+            };
+            currentActivePatient = null;
+
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+            document.getElementById('step1-validation-msg').classList.add('hidden');
+            document.getElementById('step2-validation-msg').classList.add('hidden');
+            document.getElementById('step3-validation-msg').classList.add('hidden');
+
+            navigateToScreen('assessment', 1);
+        }
+
+        // Navegación entre Pasos del Formulario
+        function navigateToStep(stepNumber) {
+            navigateToScreen('assessment', stepNumber);
+        }
+
+        function showStepView(stepNumber) {
+            currentStepNumber = stepNumber;
+            document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('step-' + stepNumber).classList.remove('hidden');
+
+            const indicator = document.getElementById('step-indicator');
+            const progress = document.getElementById('progress-bar');
+            const summaryContainer = document.getElementById('previous-steps-summary');
+
+            if (stepNumber === 1) {
+                indicator.innerText = "Paso 1 de 3: Banderas Rojas";
+                progress.style.width = "33.3%";
+                summaryContainer.classList.add('hidden');
+            } else if (stepNumber === 2) {
+                indicator.innerText = "Paso 2 de 3: Precauciones";
+                progress.style.width = "66.6%";
+                summaryContainer.classList.remove('hidden');
+                renderStepSummary(1);
+            } else if (stepNumber === 3) {
+                indicator.innerText = "Paso 3 de 3: Fisioterapia";
+                progress.style.width = "100%";
+                summaryContainer.classList.remove('hidden');
+                renderStepSummary(2);
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Renderizar el Registro / Resumen de Pasos Anteriores en la Parte Superior
+        function renderStepSummary(upToStep) {
+            const container = document.getElementById('previous-steps-summary');
+            let html = '';
+
+            // Paso 1: Rojas
+            const activeReds = Object.keys(currentAssessment.reds).filter(k => currentAssessment.reds[k]);
+            let redText = currentAssessment.redNone 
+                ? '<span class="text-emerald-700 font-semibold">Sin contraindicaciones absolutas</span>'
+                : (activeReds.length > 0 
+                    ? `<span class="text-rose-700 font-bold">${activeReds.map(id => absoluteRedFlags.find(r => r.id === id)?.label).join(', ')}</span>`
+                    : '<span class="text-amber-700 font-medium">No verificado</span>');
+
+            html += `
+                <div class="bg-rose-50/70 border border-rose-200 p-3.5 rounded-xl text-xs flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        <strong class="text-rose-950">Paso 1 (Banderas Rojas):</strong>
+                        <span>${redText}</span>
+                    </div>
+                    <button onclick="navigateToStep(1)" class="text-xs text-rose-700 font-bold hover:underline flex items-center gap-1">
+                        Editar
+                    </button>
+                </div>
+            `;
+
+            // Paso 2: Precauciones (si estamos en el Paso 3)
+            if (upToStep >= 2) {
+                const activeYellows = Object.keys(currentAssessment.yellows).filter(k => currentAssessment.yellows[k]);
+                let yellowText = currentAssessment.yellowNone 
+                    ? '<span class="text-emerald-700 font-semibold">Sin criterios de precaución</span>'
+                    : (activeYellows.length > 0 
+                        ? `<span class="text-amber-800 font-bold">${activeYellows.map(id => precautionYellowFlags.find(y => y.id === id)?.label).join(', ')}</span>`
+                        : '<span class="text-amber-700 font-medium">No verificado</span>');
+
+                html += `
+                    <div class="bg-amber-50/70 border border-amber-200 p-3.5 rounded-xl text-xs flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                            <strong class="text-amber-950">Paso 2 (Precauciones):</strong>
+                            <span>${yellowText}</span>
+                        </div>
+                        <button onclick="navigateToStep(2)" class="text-xs text-amber-800 font-bold hover:underline flex items-center gap-1">
+                            Editar
+                        </button>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Validaciones de Verificación Obligatoria
+        function validateAndGoToStep(nextStep) {
+            if (nextStep === 2) {
+                const hasReds = Object.values(currentAssessment.reds).some(v => v);
+                if (!hasReds && !currentAssessment.redNone) {
+                    document.getElementById('step1-validation-msg').classList.remove('hidden');
+                    return;
+                }
+                document.getElementById('step1-validation-msg').classList.add('hidden');
+                navigateToStep(2);
+            } else if (nextStep === 3) {
+                const hasYellows = Object.values(currentAssessment.yellows).some(v => v);
+                if (!hasYellows && !currentAssessment.yellowNone) {
+                    document.getElementById('step2-validation-msg').classList.remove('hidden');
+                    return;
+                }
+                document.getElementById('step2-validation-msg').classList.add('hidden');
+                navigateToStep(3);
+            }
+        }
+
+        function validateAndCalculate() {
+            const hasPhysio = Object.values(currentAssessment.physio).some(v => v);
+            if (!hasPhysio && !currentAssessment.physioNone) {
+                document.getElementById('step3-validation-msg').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('step3-validation-msg').classList.add('hidden');
+            calculateAndShowResults(false);
+        }
+
+        // Generar Paciente Aleatorio
+        function generateRandomPatient() {
+            const isFemale = Math.random() < 0.5;
+            const names = isFemale ? FEMALE_NAMES : MALE_NAMES;
+            const patientName = names[Math.floor(Math.random() * names.length)];
+            const diagnosis = DIAGNOSES_LIST[Math.floor(Math.random() * DIAGNOSES_LIST.length)];
+
+            let age;
+            if (diagnosis.category === 'geriatric') age = Math.floor(Math.random() * 21) + 75;
+            else if (diagnosis.category === 'surgical') age = Math.floor(Math.random() * 41) + 45;
+            else age = Math.floor(Math.random() * 56) + 40;
+
+            let daysBedridden;
+            if (diagnosis.category === 'geriatric' || diagnosis.name.includes("Deterioro")) {
+                daysBedridden = [3, 5, 7, 10][Math.floor(Math.random() * 4)];
+            } else if (diagnosis.category === 'surgical') {
+                daysBedridden = [0, 1, 3][Math.floor(Math.random() * 3)];
+            } else {
+                daysBedridden = BEDRIDDEN_DAYS[Math.floor(Math.random() * BEDRIDDEN_DAYS.length)];
+            }
+
+            const isUnstableRed = Math.random() < 0.12;
+            let sysBP, diaBP, hr, rr, spo2, oxygenTherapy = false, o2Flow = 0;
+
+            if (isUnstableRed) {
+                const redType = Math.floor(Math.random() * 3);
+                if (redType === 0) {
+                    sysBP = Math.floor(Math.random() * 12) + 75;
+                    diaBP = Math.floor(sysBP * 0.6);
+                    hr = Math.floor(Math.random() * 35) + 115;
+                    rr = Math.floor(Math.random() * 10) + 20;
+                    spo2 = Math.floor(Math.random() * 6) + 90;
+                } else if (redType === 1) {
+                    sysBP = Math.floor(Math.random() * 30) + 105;
+                    diaBP = Math.floor(sysBP * 0.65);
+                    hr = Math.floor(Math.random() * 25) + 110;
+                    rr = Math.floor(Math.random() * 10) + 32;
+                    spo2 = Math.floor(Math.random() * 5) + 82;
+                    oxygenTherapy = true;
+                    o2Flow = Math.floor(Math.random() * 4) + 3;
+                } else {
+                    sysBP = Math.floor(Math.random() * 15) + 82;
+                    diaBP = Math.floor(sysBP * 0.6);
+                    hr = Math.floor(Math.random() * 30) + 125;
+                    rr = Math.floor(Math.random() * 8) + 24;
+                    spo2 = Math.floor(Math.random() * 6) + 88;
+                }
+            } else {
+                sysBP = Math.floor(Math.random() * 45) + 95;
+                diaBP = Math.floor(sysBP * 0.65);
+                
+                if (diagnosis.category === 'respiratory') {
+                    rr = Math.floor(Math.random() * 10) + 20;
+                    spo2 = Math.floor(Math.random() * 6) + 89;
+                    if (spo2 <= 93) { oxygenTherapy = true; o2Flow = Math.floor(Math.random() * 3) + 1; }
+                    hr = Math.floor(Math.random() * 30) + 85;
+                } else if (diagnosis.category === 'cardiac') {
+                    rr = Math.floor(Math.random() * 8) + 18;
+                    spo2 = Math.floor(Math.random() * 5) + 91;
+                    if (spo2 <= 92) { oxygenTherapy = true; o2Flow = 2; }
+                    hr = Math.floor(Math.random() * 35) + 80;
+                } else {
+                    rr = Math.floor(Math.random() * 8) + 14;
+                    spo2 = Math.floor(Math.random() * 4) + 95;
+                    hr = Math.floor(Math.random() * 30) + 65;
+                }
+            }
+
+            let painLevel = 0;
+            if (diagnosis.category === 'surgical') painLevel = Math.floor(Math.random() * 5) + 3;
+            else if (diagnosis.category === 'ortho') painLevel = Math.floor(Math.random() * 4) + 4;
+            else painLevel = Math.random() < 0.25 ? Math.floor(Math.random() * 3) + 3 : 1;
+
+            const symptomsList = [];
+            const activeReds = {};
+            const activeYellows = {};
+            const activePhysio = {};
+
+            if (sysBP < 90) activeReds['hemo'] = true;
+            if (rr >= 32 || (spo2 < 88 && oxygenTherapy)) activeReds['resp_severe'] = true;
+            if (isUnstableRed && !activeReds['hemo'] && !activeReds['resp_severe']) activeReds['shock'] = true;
+
+            if (sysBP >= 90 && sysBP <= 100) activeYellows['pas_low'] = true;
+            if (hr > 120) activeYellows['fc_high'] = true;
+            if (rr > 24 && rr < 32) activeYellows['fr_high'] = true;
+            if (spo2 >= 90 && spo2 <= 92) activeYellows['sat_low'] = true;
+            if (painLevel >= 5) activeYellows['pain_mod'] = true;
+            if (oxygenTherapy) activeYellows['o2_therapy'] = true;
+            if (daysBedridden <= 1 && diagnosis.category === 'surgical') activeYellows['surgery'] = true;
+
+            const dizzy = (sysBP <= 100 || daysBedridden >= 3 || Math.random() < 0.3);
+            if (dizzy && !activeReds['hemo']) activeYellows['dizzy'] = true;
+
+            const fallRisk = (age >= 75 || diagnosis.category === 'ortho' || diagnosis.category === 'neuro' || daysBedridden >= 5);
+            if (fallRisk) activeYellows['fall_risk'] = true;
+
+            const fatigue = (diagnosis.category === 'cardiac' || diagnosis.category === 'respiratory' || daysBedridden >= 3);
+            if (fatigue) activeYellows['fatigue'] = true;
+
+            const cognitive = (age >= 80 && (diagnosis.category === 'geriatric' || Math.random() < 0.35));
+            if (cognitive) activeYellows['cog_imp'] = true;
+
+            if (painLevel > 0) symptomsList.push(`Dolor valorado en EVA ${painLevel}/10.`);
+            if (oxygenTherapy) symptomsList.push(`Gafas nasales a ${o2Flow} L/min.`);
+            if (dizzy && !activeReds['hemo']) symptomsList.push("Refiere leve sensación de mareo al elevar el cabecero.");
+            else if (fatigue) symptomsList.push("Refiere cansancio ligero ante los cambios posturales.");
+
+            const devices = [];
+            if (Math.random() < 0.7) devices.push("vía periférica");
+            if (daysBedridden >= 5 || diagnosis.category === 'surgical') devices.push("sonda vesical");
+            if (diagnosis.category === 'surgical' && Math.random() < 0.5) devices.push("drenaje");
+
+            if (devices.length > 0) symptomsList.push(`Porta: ${devices.join(', ')}.`);
+            if (cognitive) symptomsList.push("Desorientación temporoespacial leve.");
+            else symptomsList.push("Paciente consciente y colaborador.");
+
+            if (daysBedridden >= 5) activePhysio['bedridden_5d'] = true;
+            if (diagnosis.category === 'respiratory' && Math.random() < 0.6) activePhysio['secretions'] = true;
+            if (diagnosis.category === 'respiratory' && rr > 22) activePhysio['resp_distress'] = true;
+            if (daysBedridden >= 7 || diagnosis.category === 'geriatric') activePhysio['severe_weakness'] = true;
+            if (diagnosis.category === 'ortho' || diagnosis.category === 'neuro' || fallRisk) activePhysio['gait_issues'] = true;
+            if (diagnosis.category === 'geriatric' || daysBedridden >= 5) activePhysio['functional_decline'] = true;
+
+            currentActivePatient = {
+                name: patientName,
+                age: age,
+                gender: isFemale ? 'F' : 'M',
+                diagnosis: diagnosis.name,
+                daysBedridden: daysBedridden,
+                bp: `${sysBP}/${diaBP} mmHg`,
+                sysBP: sysBP,
+                hr: hr,
+                rr: rr,
+                spo2: spo2,
+                o2Text: oxygenTherapy ? `con O2 a ${o2Flow} L/min` : 'aire ambiente',
+                symptoms: symptomsList,
+                reds: activeReds,
+                yellows: activeYellows,
+                physio: activePhysio
+            };
+
+            currentAssessment = {
+                reds: { ...activeReds },
+                yellows: { ...activeYellows },
+                physio: { ...activePhysio },
+                redNone: Object.keys(activeReds).length === 0,
+                yellowNone: Object.keys(activeYellows).length === 0,
+                physioNone: Object.keys(activePhysio).length === 0
+            };
+
+            // Resetear selección del alumno
+            document.getElementById('student-mobility-choice').selectedIndex = 0;
+            document.querySelectorAll('input[name="student-physio-choice"]').forEach(r => r.checked = false);
+            document.getElementById('student-choice-warning').classList.add('hidden');
+
+            renderPatientScreen();
+            navigateToScreen('case');
+        }
+
+        function renderPatientScreen() {
+            if (!currentActivePatient) return;
+            const p = currentActivePatient;
+
+            document.getElementById('patient-name').innerText = p.name;
+            document.getElementById('patient-age').innerText = `${p.age} años`;
+            document.getElementById('patient-diagnosis').innerText = p.diagnosis;
+            document.getElementById('patient-days').innerText = `${p.daysBedridden} días`;
+
+            document.getElementById('patient-bp').innerText = p.bp;
+            document.getElementById('patient-hr').innerText = `${p.hr} lpm`;
+            document.getElementById('patient-rr').innerText = `${p.rr} rpm`;
+            document.getElementById('patient-spo2').innerText = `${p.spo2}% (${p.o2Text})`;
+
+            const listEl = document.getElementById('patient-symptoms-list');
+            listEl.innerHTML = p.symptoms.map(s => `<li>${s}</li>`).join('');
+
+            // Actualizar checkboxes de valoración
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            Object.keys(p.reds).forEach(id => { const el = document.getElementById(`red_${id}`); if(el) el.checked = true; });
+            Object.keys(p.yellows).forEach(id => { const el = document.getElementById(`yellow_${id}`); if(el) el.checked = true; });
+            Object.keys(p.physio).forEach(id => { const el = document.getElementById(`physio_${id}`); if(el) el.checked = true; });
+
+            document.getElementById('red_none').checked = currentAssessment.redNone;
+            document.getElementById('yellow_none').checked = currentAssessment.yellowNone;
+            document.getElementById('physio_none').checked = currentAssessment.physioNone;
+        }
+
+        // Calcular y Revelar Resultados
+        function calculateAndShowResults(fromSimulatedCase = true) {
+            let studentMobility = null;
+            let studentPhysio = null;
+
+            // Si proviene de un caso simulado, validar que el alumno haya contestado
+            if (fromSimulatedCase && currentActivePatient) {
+                const mobilitySelect = document.getElementById('student-mobility-choice');
+                const physioRadio = document.querySelector('input[name="student-physio-choice"]:checked');
+
+                if (!mobilitySelect.value || !physioRadio) {
+                    document.getElementById('student-choice-warning').classList.remove('hidden');
+                    return;
+                }
+                document.getElementById('student-choice-warning').classList.add('hidden');
+
+                studentMobility = parseInt(mobilitySelect.value);
+                studentPhysio = physioRadio.value === 'yes';
+            }
+
+            const activeReds = Object.keys(currentAssessment.reds).filter(k => currentAssessment.reds[k]);
+            const activeYellows = Object.keys(currentAssessment.yellows).filter(k => currentAssessment.yellows[k]);
+            const activePhysio = Object.keys(currentAssessment.physio).filter(k => currentAssessment.physio[k]);
+
+            const yellowCount = activeYellows.length;
+            const hasRed = activeReds.length > 0;
+            const hasPhysioCriteria = activePhysio.length > 0;
+
+            const banner = document.getElementById('result-banner');
+            const title = document.getElementById('result-title');
+            const message = document.getElementById('result-message');
+            const levelNum = document.getElementById('result-level-num');
+            const levelName = document.getElementById('result-level-name');
+
+            let recommendedLevel = 0;
+            let outcomeCategory = '';
+
+            if (hasRed) {
+                outcomeCategory = 'red';
+                recommendedLevel = 0;
+
+                banner.className = "rounded-3xl p-6 sm:p-8 text-white shadow-lg transition-all bg-gradient-to-r from-rose-600 to-rose-800";
+                title.innerText = "🔴 NO MOVILIZAR TODAVÍA";
+                message.innerText = "El paciente presenta una situación clínica de inestabilidad o contraindicación absoluta que requiere estabilización médica previa antes de progresar con la movilidad.";
+                levelNum.innerText = "Nivel 0";
+                levelName.innerText = "Reposicionamiento";
+            } else {
+                if (yellowCount === 0) {
+                    outcomeCategory = 'green';
+                    recommendedLevel = 5;
+
+                    banner.className = "rounded-3xl p-6 sm:p-8 text-white shadow-lg transition-all bg-gradient-to-r from-emerald-600 to-teal-700";
+                    title.innerText = "🟢 MOVILIZAR";
+                    message.innerText = "Paciente estable sin criterios de riesgo identificados. Puede iniciarse movilización progresiva hasta el máximo nivel de independencia que tolere.";
+                    levelNum.innerText = "Nivel 4-5";
+                    levelName.innerText = "Bipedestación / Marcha";
+                } else if (yellowCount >= 1 && yellowCount <= 3) {
+                    outcomeCategory = 'yellow';
+                    recommendedLevel = 3;
+
+                    banner.className = "rounded-3xl p-6 sm:p-8 text-slate-900 shadow-lg transition-all bg-gradient-to-r from-amber-400 to-amber-500";
+                    title.innerText = "🟡 MOVILIZAR CON PRECAUCIONES";
+                    message.innerText = "Se recomienda movilización progresiva bajo monitorización cercana de constantes y reevaluación continua durante el proceso.";
+                    levelNum.innerText = "Nivel 2-3";
+                    levelName.innerText = "Sedestación / Sillón";
+                } else {
+                    outcomeCategory = 'orange';
+                    recommendedLevel = 1;
+
+                    banner.className = "rounded-3xl p-6 sm:p-8 text-white shadow-lg transition-all bg-gradient-to-r from-orange-600 to-amber-700";
+                    title.innerText = "🟠 VALORAR CON APOYO DEL EQUIPO";
+                    message.innerText = "El paciente presenta múltiples condicionantes acumulados. Se recomienda iniciar únicamente sedestación asistida con apoyo del personal.";
+                    levelNum.innerText = "Nivel 1-2";
+                    levelName.innerText = "Sedestación asistida";
+                }
+            }
+
+            // Comparar respuesta del alumno si procede
+            renderStudentComparison(studentMobility, studentPhysio, recommendedLevel, hasPhysioCriteria, outcomeCategory);
+            renderReasoningLists(activeReds, activeYellows, outcomeCategory);
+            renderLevelsGrid(recommendedLevel, outcomeCategory);
+            renderPhysioCard(hasPhysioCriteria, activePhysio);
+
+            navigateToScreen('results');
+        }
+
+        // Renderizar Tarjeta Comparativa (Tu Hipótesis vs. Algoritmo)
+        function renderStudentComparison(studentMobility, studentPhysio, algoLevel, algoPhysio, outcomeCategory) {
+            const compCard = document.getElementById('student-comparison-card');
+
+            if (studentMobility === null) {
+                compCard.classList.add('hidden');
+                return;
+            }
+
+            compCard.classList.remove('hidden');
+
+            const studentSummary = document.getElementById('student-summary-text');
+            const algoSummary = document.getElementById('algo-summary-text');
+            const feedbackBadge = document.getElementById('student-feedback-badge');
+
+            studentSummary.innerText = `Nivel ${studentMobility} | ${studentPhysio ? 'Derivar a Fisioterapia' : 'Sin Fisioterapia'}`;
+            
+            let algoText = `Nivel recomendado: `;
+            if (outcomeCategory === 'red') algoText += `Nivel 0 (Reposicionamiento)`;
+            else if (outcomeCategory === 'orange') algoText += `Nivel 1-2 (Sedestación asistida)`;
+            else if (outcomeCategory === 'yellow') algoText += `Nivel 2-3 (Sedestación/Sillón)`;
+            else algoText += `Nivel 4-5 (Bipedestación/Marcha)`;
+            algoText += ` | ${algoPhysio ? 'Derivar a Fisioterapia' : 'Sin Fisioterapia'}`;
+
+            algoSummary.innerText = algoText;
+
+            // Coincidencia de nivel
+            let levelMatched = false;
+            if (outcomeCategory === 'red' && studentMobility === 0) levelMatched = true;
+            else if (outcomeCategory === 'orange' && (studentMobility === 1 || studentMobility === 2)) levelMatched = true;
+            else if (outcomeCategory === 'yellow' && (studentMobility === 2 || studentMobility === 3)) levelMatched = true;
+            else if (outcomeCategory === 'green' && studentMobility >= 4) levelMatched = true;
+
+            const physioMatched = (studentPhysio === algoPhysio);
+
+            if (levelMatched && physioMatched) {
+                feedbackBadge.className = "p-3 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-2";
+                feedbackBadge.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> ¡Excelente razonamiento! Has acertado tanto la indicación del nivel de movilidad como la derivación a Fisioterapia.`;
+            } else if (levelMatched || physioMatched) {
+                feedbackBadge.className = "p-3 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-2";
+                feedbackBadge.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4"></i> ¡Buen intento! Has acertado ${levelMatched ? 'el Nivel de Movilidad' : 'la decisión de Fisioterapia'}. Revisa a continuación el desglose para perfeccionar tu criterio.`;
+            } else {
+                feedbackBadge.className = "p-3 rounded-xl text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center gap-2";
+                feedbackBadge.innerHTML = `<i data-lucide="alert-triangle" class="w-4 h-4"></i> Revisa los hallazgos del caso. Hay discrepancias en la estimación del riesgo o en la indicación de Fisioterapia.`;
+            }
+        }
+
+        // Explicación de Factores a favor / Riesgos
+        function renderReasoningLists(activeReds, activeYellows, outcomeCategory) {
+            const proList = document.getElementById('pro-factors-list');
+            const riskList = document.getElementById('risk-factors-list');
+            const actionPlan = document.getElementById('action-plan-list');
+
+            proList.innerHTML = '';
+            riskList.innerHTML = '';
+            actionPlan.innerHTML = '';
+
+            if (activeReds.length === 0) {
+                proList.innerHTML += `<li>Estabilidad hemodinámica y respiratoria básica confirmada.</li>`;
+                proList.innerHTML += `<li>Ausencia de banderas rojas de peligro inminente.</li>`;
+            } else {
+                proList.innerHTML += `<li>No se identifican factores hemodinámicos favorables en este momento.</li>`;
+            }
+
+            if (activeReds.length > 0) {
+                activeReds.forEach(id => {
+                    const item = absoluteRedFlags.find(r => r.id === id);
+                    if (item) riskList.innerHTML += `<li class="font-bold text-rose-700">🚫 ${item.label}</li>`;
+                });
+            }
+
+            if (activeYellows.length > 0) {
+                activeYellows.forEach(id => {
+                    const item = precautionYellowFlags.find(y => y.id === id);
+                    if (item) riskList.innerHTML += `<li>⚠️ ${item.label}</li>`;
+                });
+            }
+
+            if (activeReds.length === 0 && activeYellows.length === 0) {
+                riskList.innerHTML = `<li>Ningún criterio de riesgo seleccionado. Paciente óptimo.</li>`;
+            }
+
+            if (outcomeCategory === 'red') {
+                actionPlan.innerHTML = `
+                    <li>Realizar cambios posturales pautados cada 2-3 horas (reposicionamiento).</li>
+                    <li>Notificar al equipo médico la causa de inestabilidad detectada.</li>
+                    <li>Reevaluar criterios de seguridad tras la estabilización del evento agudo.</li>
+                `;
+            } else if (outcomeCategory === 'yellow' || outcomeCategory === 'orange') {
+                actionPlan.innerHTML = `
+                    <li>Medir TA y FC en supino y posteriormente al incorporarse (vigilar ortostatismo).</li>
+                    <li>Asegurar líneas y dispositivos (vías, drenajes, sondas) antes de la transferencia.</li>
+                    <li>Progresar gradualmente de sedestación a bipedestación si tolera sin mareo.</li>
+                `;
+            } else {
+                actionPlan.innerHTML = `
+                    <li>Fomentar la autonomía en actividades de la vida diaria (sedestación para comer).</li>
+                    <li>Estimular la deambulación por el pasillo al menos 2-3 veces al día.</li>
+                    <li>Supervisar la marcha y asegurar el uso de calzado adecuado.</li>
+                `;
+            }
+        }
+
+        // Renderizar la Cuadrícula de Niveles Progresivos
+        function renderLevelsGrid(recommendedLevel, outcomeCategory) {
+            const container = document.getElementById('levels-grid');
+
+            container.innerHTML = mobilityLevels.map(lvl => {
+                let isSelected = false;
+
+                if (outcomeCategory === 'red' && lvl.level === 0) isSelected = true;
+                if (outcomeCategory === 'orange' && (lvl.level === 1 || lvl.level === 2)) isSelected = true;
+                if (outcomeCategory === 'yellow' && (lvl.level === 2 || lvl.level === 3)) isSelected = true;
+                if (outcomeCategory === 'green' && (lvl.level >= 4)) isSelected = true;
+
+                const cardStyle = isSelected
+                    ? 'border-2 border-emerald-500 bg-emerald-50/50 shadow-md ring-2 ring-emerald-500/20'
+                    : 'border border-slate-200 bg-white opacity-70';
+
+                const badge = isSelected
+                    ? `<span class="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Indicado</span>`
+                    : '';
+
+                return `
+                    <div class="p-4 rounded-xl ${cardStyle} flex flex-col justify-between transition">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-black text-slate-400">NIVEL ${lvl.level}</span>
+                                ${badge}
+                            </div>
+                            <h4 class="font-bold text-slate-900 text-sm mb-1">${lvl.title.split(':')[1]}</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">${lvl.desc}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Card de recomendación de Fisioterapia
+        function renderPhysioCard(hasPhysioCriteria, activePhysio) {
+            const iconBg = document.getElementById('physio-icon-bg');
+            const statusText = document.getElementById('physio-status-text');
+            const detailReason = document.getElementById('physio-detail-reason');
+
+            if (hasPhysioCriteria) {
+                iconBg.className = "p-3 rounded-xl bg-blue-600 text-white shadow-md";
+                statusText.className = "text-xs font-bold text-blue-600";
+                statusText.innerText = "SE RECOMIENDA VALORACIÓN POR FISIOTERAPIA";
+
+                const reasons = activePhysio.map(id => {
+                    const item = physioCriteria.find(p => p.id === id);
+                    return item ? item.label : id;
+                }).join(', ');
+                detailReason.innerText = `Criterios detectados para interconsulta: ${reasons}. Se sugiere intervención coordinada de Fisioterapia y Enfermería.`;
+            } else {
+                iconBg.className = "p-3 rounded-xl bg-slate-100 text-slate-500";
+                statusText.className = "text-xs font-semibold text-slate-500";
+                statusText.innerText = "No requiere interconsulta prioritaria";
+                detailReason.innerText = "El plan de movilización precoz puede ser liderado y ejecutado por el equipo de Enfermería según protocolo habitual.";
+            }
+        }
+    </script>
+</body>
+</html>
